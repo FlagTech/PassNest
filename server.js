@@ -86,6 +86,30 @@ app.post('/copy', (req, res) => {
   }
 });
 
+// GET /vault — read encrypted vault blob from disk
+app.get('/vault', (_req, res) => {
+  try {
+    const data = readFileSync(join(getTokenDir(), 'vault.enc'), 'utf8');
+    res.json({ success: true, data });
+  } catch {
+    res.json({ success: true, data: null });
+  }
+});
+
+// POST /vault — write encrypted vault blob to disk
+app.post('/vault', (req, res) => {
+  const { data } = req.body ?? {};
+  if (!data) return res.status(400).json({ success: false, error: 'Data required' });
+  const dir = getTokenDir();
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'vault.enc'), data, 'utf8');
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, error: String(e) });
+  }
+});
+
 // POST /sync — browser calls this on unlock and after every vault mutation
 app.post('/sync', (req, res) => {
   const { entries, token, unlocked } = req.body ?? {};

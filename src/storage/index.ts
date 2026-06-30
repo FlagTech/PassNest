@@ -1,9 +1,9 @@
 import type { StorageAdapter } from "./adapter";
-import { BrowserAdapter } from "./browser-adapter";
+import { ServerAdapter } from "./server-adapter";
 
 export function getAdapter(): StorageAdapter {
-  return new BrowserAdapter();
+  return new ServerAdapter();
 }
 
 export type { StorageAdapter };
-export { BrowserAdapter };
+export { ServerAdapter };

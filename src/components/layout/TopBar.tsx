@@ -1,7 +1,7 @@
 import { Search, Plus } from "lucide-react";
 import { useUIStore } from "../../store/ui-store";
 import { Button } from "../ui/Button";
-import { getAdapter, BrowserAdapter } from "../../storage";
+import { getAdapter } from "../../storage";
 
 export function TopBar() {
   const { currentView, searchQuery, setSearch, openModal } = useUIStore();
@@ -18,7 +18,7 @@ export function TopBar() {
       const file = input.files?.[0];
       if (!file) return;
       try {
-        await (getAdapter() as BrowserAdapter).importVault(file);
+        await getAdapter().importVault(file);
         window.location.reload();
       } catch {
         alert("匯入失敗，請確認檔案格式");
@@ -28,7 +28,7 @@ export function TopBar() {
   };
 
   const handleExport = async () => {
-    await (getAdapter() as BrowserAdapter).exportVault();
+    await getAdapter().exportVault();
   };
 
   return (
