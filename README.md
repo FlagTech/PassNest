@@ -20,6 +20,12 @@
 
 **Windows 免安裝執行檔**：前往 [Releases](https://github.com/FlagTech/PassNest/releases/latest) 下載 `PassNest-windows-x64.zip`，解壓後雙擊 `PassNest.exe` 即可執行，無需安裝。
 
+> **首次執行注意事項**
+>
+> 由於執行檔未經程式碼簽章，Windows Defender SmartScreen 會顯示「Windows 已保護您的電腦」警告。請點擊「**更多資訊**」→「**仍要執行**」即可繼續。
+>
+> 若出現「找不到 WebView2」錯誤，請先安裝 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)（Windows 11 及已更新的 Windows 10 通常已內建）。
+
 ---
 
 ## 快速開始
