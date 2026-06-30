@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pink: #FF8FAB;
+  --color-pink-light: #FFB3C6;
+  --color-pink-dark: #E07094;
+  --color-mint: #81C784;
+  --color-mint-light: #A5D6A7;
+  --color-mint-dark: #5FAD63;
+  --color-purple: #CE93D8;
+  --color-purple-light: #E1BEE7;
+  --color-purple-dark: #B060C0;
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #FFF0E6;
+  --color-slate: #4A4A6A;
+  --color-slate-light: #6B6B8A;
+
+  --shadow-soft: 0 4px 24px 0 rgba(206, 147, 216, 0.15);
+  --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow-pink: 0 0 20px rgba(255, 143, 171, 0.3);
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-cream);
+  color: var(--color-slate);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-pink-light);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-pink);
+}
+
+input[type="password"]::-ms-reveal {
+  display: none;
+}
