@@ -16,11 +16,17 @@
 
 ---
 
+## 下載
+
+**Windows 免安裝執行檔**：前往 [Releases](https://github.com/FlagTech/PassNest/releases/latest) 下載 `PassNest.exe`，雙擊即可執行，無需安裝。
+
+---
+
 ## 快速開始
 
 ### 桌面版（Windows / macOS）
 
-直接執行 `PassNest.exe`（Windows）即可，不需安裝。
+從 [Releases](https://github.com/FlagTech/PassNest/releases/latest) 下載 `PassNest.exe`（Windows）後直接執行，不需安裝。
 
 macOS 需自行從原始碼建置（見下方[建置](#建置桌面版)）。
 
