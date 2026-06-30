@@ -29,7 +29,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", duration: 0.3 }}
             className={cn(
-              "relative bg-white rounded-3xl shadow-soft w-full max-w-md p-6",
+              "relative bg-white rounded-3xl shadow-soft w-full min-w-[30rem] p-6",
               "border border-purple-light/30",
               className
             )}
