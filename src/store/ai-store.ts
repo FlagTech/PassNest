@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { invoke } from "@tauri-apps/api/core";
-import { isTauri } from "../storage";
+
+const SERVER = "http://127.0.0.1:7070";
 
 interface AIState {
   token: string | null;
@@ -10,7 +10,6 @@ interface AIState {
 
   generateToken: () => Promise<string>;
   revokeToken: () => Promise<void>;
-  loadTokenPath: () => Promise<void>;
 }
 
 function randomToken(): string {
@@ -28,36 +27,25 @@ export const useAIStore = create<AIState>((set) => ({
   generateToken: async () => {
     const token = randomToken();
     let filePath: string | null = null;
-    if (isTauri()) {
-      try {
-        filePath = await invoke<string>("write_ai_token", { token });
-      } catch (e) {
-        console.error("Failed to write AI token file:", e);
-      }
+    try {
+      const res = await fetch(`${SERVER}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (data.success) filePath = data.data.path;
+    } catch {
+      // Server not running — token still works for window.passNestAI
     }
     set({ token, enabled: true, createdAt: new Date().toISOString(), tokenFilePath: filePath });
     return token;
   },
 
   revokeToken: async () => {
-    if (isTauri()) {
-      try {
-        await invoke("delete_ai_token");
-        await invoke("clear_ai_server");
-      } catch (e) {
-        console.error("Failed to revoke AI token:", e);
-      }
-    }
-    set({ token: null, enabled: false, createdAt: null, tokenFilePath: null });
-  },
-
-  loadTokenPath: async () => {
-    if (!isTauri()) return;
     try {
-      const filePath = await invoke<string>("get_ai_token_path");
-      set({ tokenFilePath: filePath });
-    } catch {
-      // ignore
-    }
+      await fetch(`${SERVER}/revoke`, { method: "POST" });
+    } catch {}
+    set({ token: null, enabled: false, createdAt: null, tokenFilePath: null });
   },
 }));

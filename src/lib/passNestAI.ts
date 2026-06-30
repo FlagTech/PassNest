@@ -1,14 +1,12 @@
 /**
  * PassNest AI Bridge
  *
- * Exposes window.passNestAI for AI agents.
+ * Exposes window.passNestAI for AI agents (Codex Chrome extension).
  * - No master password required (token-based auth)
  * - Cannot read credential values — copy-to-clipboard only
  * - Token issued by user from within PassNest UI
  */
 
-import { invoke } from "@tauri-apps/api/core";
-import { isTauri } from "../storage";
 import { useVaultStore } from "../store/vault-store";
 import { useAIStore } from "../store/ai-store";
 import type { VaultEntry } from "../types/vault";
@@ -20,26 +18,18 @@ type EntryMeta =
   | { id: string; type: "apikey"; label: string; serviceName: string; expiresAt: string | null };
 
 interface PassNestAIBridge {
-  /** Authenticate with the AI token issued by the user */
   auth(token: string): { success: boolean; message: string };
-  /** List entries (no passwords/keys returned) */
   listEntries(type?: "password" | "apikey"): { entries: EntryMeta[] } | { error: string };
-  /** Copy a credential field to clipboard — value never returned */
   copyCredential(
     entryId: string,
     field: "password" | "username" | "keyValue"
   ): Promise<{ success: boolean; label?: string; field?: string } | { error: string }>;
-  /** Check vault and token status */
   status(): { vaultUnlocked: boolean; tokenActive: boolean };
 }
 
 async function clipboardWrite(text: string): Promise<void> {
-  if (isTauri()) {
-    await invoke("secure_copy", { text, clearAfterMs: CLIPBOARD_CLEAR_MS });
-  } else {
-    await navigator.clipboard.writeText(text);
-    setTimeout(() => navigator.clipboard.writeText("").catch(() => {}), CLIPBOARD_CLEAR_MS);
-  }
+  await navigator.clipboard.writeText(text);
+  setTimeout(() => navigator.clipboard.writeText("").catch(() => {}), CLIPBOARD_CLEAR_MS);
 }
 
 function toMeta(entry: VaultEntry): EntryMeta {
@@ -56,7 +46,6 @@ export function mountPassNestAI(): void {
     auth(token: string) {
       const { token: validToken, enabled } = useAIStore.getState();
       const { status } = useVaultStore.getState();
-
       if (!enabled || !validToken) {
         _authenticated = false;
         return { success: false, message: "AI 模式未啟用。請在 PassNest 中產生 AI Token。" };
@@ -76,10 +65,7 @@ export function mountPassNestAI(): void {
     listEntries(type) {
       const { status, entries } = useVaultStore.getState();
       if (!_authenticated) return { error: "請先呼叫 auth(token) 驗證。" };
-      if (status !== "unlocked") {
-        _authenticated = false;
-        return { error: "Vault 已鎖定，請重新解鎖後再試。" };
-      }
+      if (status !== "unlocked") { _authenticated = false; return { error: "Vault 已鎖定，請重新解鎖後再試。" }; }
       const filtered = type ? entries.filter((e) => e.type === type) : entries;
       return { entries: filtered.map(toMeta) };
     },
@@ -87,26 +73,15 @@ export function mountPassNestAI(): void {
     async copyCredential(entryId, field) {
       const { status, entries } = useVaultStore.getState();
       if (!_authenticated) return { error: "請先呼叫 auth(token) 驗證。" };
-      if (status !== "unlocked") {
-        _authenticated = false;
-        return { error: "Vault 已鎖定，請重新解鎖後再試。" };
-      }
-
+      if (status !== "unlocked") { _authenticated = false; return { error: "Vault 已鎖定，請重新解鎖後再試。" }; }
       const entry = entries.find((e) => e.id === entryId);
       if (!entry) return { error: `找不到 ID 為 '${entryId}' 的條目。` };
-
       let value: string | undefined;
       if (field === "username" && entry.type === "password") value = entry.username;
       else if (field === "password" && entry.type === "password") value = entry.password;
       else if (field === "keyValue" && entry.type === "apikey") value = entry.keyValue;
-
-      if (value === undefined) {
-        return { error: `欄位 '${field}' 在此條目類型中不存在。` };
-      }
-
+      if (value === undefined) return { error: `欄位 '${field}' 在此條目類型中不存在。` };
       await clipboardWrite(value);
-
-      // Return success — the actual value is NEVER returned
       return { success: true, label: entry.label, field };
     },
 

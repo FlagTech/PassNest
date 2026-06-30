@@ -1,12 +1,10 @@
 import { Search, Plus } from "lucide-react";
 import { useUIStore } from "../../store/ui-store";
 import { Button } from "../ui/Button";
-import { usePlatform } from "../../hooks/usePlatform";
 import { getAdapter, BrowserAdapter } from "../../storage";
 
 export function TopBar() {
   const { currentView, searchQuery, setSearch, openModal } = useUIStore();
-  const { isBrowser } = usePlatform();
 
   const isPasswords = currentView === "passwords";
   const label = isPasswords ? "密碼" : "API 金鑰";
@@ -36,10 +34,7 @@ export function TopBar() {
   return (
     <header className="h-16 bg-white border-b border-purple-light/30 flex items-center px-5 gap-3 shrink-0">
       <div className="flex-1 relative">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-light"
-        />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-light" />
         <input
           value={searchQuery}
           onChange={(e) => setSearch(e.target.value)}
@@ -48,16 +43,10 @@ export function TopBar() {
         />
       </div>
 
-      {isBrowser && (
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={handleExport}>
-            匯出備份
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleImport}>
-            匯入備份
-          </Button>
-        </div>
-      )}
+      <div className="flex gap-2">
+        <Button variant="ghost" size="sm" onClick={handleExport}>匯出備份</Button>
+        <Button variant="ghost" size="sm" onClick={handleImport}>匯入備份</Button>
+      </div>
 
       <Button size="sm" onClick={() => openModal(modalType)}>
         <Plus size={14} />

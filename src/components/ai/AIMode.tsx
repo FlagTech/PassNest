@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, Copy, RefreshCw, ShieldOff, CheckCircle, FolderOpen } from "lucide-react";
+import { Bot, Copy, RefreshCw, ShieldOff, CheckCircle, FolderOpen, Server } from "lucide-react";
 import { useAIStore } from "../../store/ai-store";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Modal";
@@ -50,7 +50,7 @@ export function AIMode({ open, onClose }: AIModeProps) {
           <p className="font-semibold mb-1">AI 代理人存取限制</p>
           <ul className="flex flex-col gap-1 text-slate-light text-xs">
             <li>✅ AI 可以看到：條目名稱、網址、帳號</li>
-            <li>✅ AI 可以操作：複製密碼到剪貼板（3分鐘後自動清空）</li>
+            <li>✅ AI 可以操作：複製密碼到剪貼板（3 分鐘後自動清空）</li>
             <li>❌ AI 無法取得：實際密碼或 API 金鑰的明文值</li>
             <li>❌ AI 無法操作：新增、修改、刪除任何條目</li>
           </ul>
@@ -80,16 +80,14 @@ export function AIMode({ open, onClose }: AIModeProps) {
               )}
             </div>
 
-            {/* Token display - only shown right after generation */}
+            {/* Token display — only shown right after generation */}
             {newToken ? (
               <div className="flex flex-col gap-2">
                 <p className="text-xs text-slate-light">
                   請複製此 Token 並貼給 AI。Token 只顯示一次，請妥善保存。
                 </p>
                 <div className="flex items-center gap-2 bg-cream rounded-2xl px-3 py-2 border-2 border-pink-light">
-                  <code className="flex-1 text-xs font-mono text-slate break-all">
-                    {newToken}
-                  </code>
+                  <code className="flex-1 text-xs font-mono text-slate break-all">{newToken}</code>
                   <button
                     onClick={handleCopy}
                     className="shrink-0 p-1.5 rounded-xl text-slate-light hover:text-pink transition-colors"
@@ -105,10 +103,10 @@ export function AIMode({ open, onClose }: AIModeProps) {
               </div>
             )}
 
-            {/* Token file path */}
-            {tokenFilePath && (
+            {/* Token file path — shown when server successfully wrote the file */}
+            {tokenFilePath ? (
               <div className="flex flex-col gap-1.5">
-                <p className="text-xs text-slate-light">Token 已儲存至（AI 可直接讀取此路徑）：</p>
+                <p className="text-xs text-slate-light">Token 已寫入檔案（AI 可直接讀取此路徑）：</p>
                 <div className="flex items-center gap-2 bg-cream rounded-2xl px-3 py-2 border border-purple-light/40">
                   <FolderOpen size={13} className="text-purple shrink-0" />
                   <code className="flex-1 text-xs font-mono text-slate break-all">{tokenFilePath}</code>
@@ -121,26 +119,34 @@ export function AIMode({ open, onClose }: AIModeProps) {
                   </button>
                 </div>
               </div>
+            ) : newToken && (
+              <div className="flex items-start gap-2 bg-amber-50 rounded-2xl px-3 py-2.5 border border-amber-200">
+                <Server size={13} className="text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-700">
+                  AI Server 未執行，Token 未寫入檔案。執行 <code className="font-mono">npm run server</code> 後重新產生即可自動寫入。
+                </p>
+              </div>
             )}
 
-            {/* How to use — Browser bridge */}
+            {/* How to use — Chrome extension bridge */}
             <div className="bg-slate/5 rounded-2xl p-3 text-xs font-mono text-slate-light space-y-1">
-              <p className="text-slate font-semibold not-italic mb-2 font-sans text-sm">瀏覽器 / WebView</p>
-              <p>{"window.passNestAI.auth(token)"}</p>
+              <p className="text-slate font-semibold not-italic mb-2 font-sans text-sm">Codex Chrome 外掛</p>
+              <p className="text-slate-light/60 not-italic font-sans text-xs mb-1">在 PassNest 分頁的 console 中執行：</p>
+              <p>{"window.passNestAI.auth('<TOKEN>')"}</p>
               <p>{"window.passNestAI.listEntries()"}</p>
-              <p>{"window.passNestAI.copyCredential(id, 'password')"}</p>
+              <p>{"window.passNestAI.copyCredential('<ID>', 'password')"}</p>
             </div>
 
-            {/* How to use — CLI */}
+            {/* How to use — HTTP API */}
             <div className="bg-slate/5 rounded-2xl p-3 text-xs font-mono text-slate-light space-y-1">
-              <p className="text-slate font-semibold not-italic mb-2 font-sans text-sm">CLI / AI Agent（curl）</p>
-              <p className="text-purple-dark">{"# 確認 vault 狀態"}</p>
+              <p className="text-slate font-semibold not-italic mb-1 font-sans text-sm">HTTP API（需先執行 npm run server）</p>
+              <p className="text-purple-dark">{"# 確認狀態"}</p>
               <p>{"curl http://localhost:7070/status"}</p>
               <p className="text-purple-dark mt-1">{"# 列出條目"}</p>
               <p>{"curl \"http://localhost:7070/entries?token=<TOKEN>\""}</p>
               <p className="text-purple-dark mt-1">{"# 複製密碼到剪貼板"}</p>
               <p>{"curl -X POST http://localhost:7070/copy \\"}</p>
-              <p>{"  -H \"Content-Type: application/json\" \\"}</p>
+              <p>{'  -H "Content-Type: application/json" \\'}</p>
               <p>{'  -d \'{"token":"<TOKEN>","entryId":"<ID>","field":"password"}\''}</p>
             </div>
 
