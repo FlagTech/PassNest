@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { writeFileSync, mkdirSync, unlinkSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { homedir, platform } from 'os';
 import { spawnSync } from 'child_process';
@@ -10,9 +10,6 @@ const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
-
-// In-memory vault state — synced from browser via POST /sync
-const state = { entries: [], token: null, unlocked: false };
 
 function getTokenDir() {
   const p = platform();
@@ -24,6 +21,18 @@ function getTokenDir() {
   }
   return join(homedir(), '.config', 'com.passnest.app');
 }
+
+// In-memory vault state — synced from browser via POST /sync
+const state = { entries: [], token: null, unlocked: false };
+
+// Load persisted token on startup so server restarts don't invalidate the token
+try {
+  const saved = readFileSync(join(getTokenDir(), 'ai-token'), 'utf8').trim();
+  if (saved) {
+    state.token = saved;
+    console.log('[PassNest] Token loaded from file');
+  }
+} catch { /* file not created yet */ }
 
 function copyToClipboard(text) {
   const p = platform();
@@ -41,7 +50,7 @@ function copyToClipboard(text) {
 
 // GET /status
 app.get('/status', (_req, res) => {
-  res.json({ unlocked: state.unlocked, token_active: state.unlocked && !!state.token, port: PORT });
+  res.json({ unlocked: state.unlocked, token_active: !!state.token, port: PORT });
 });
 
 // GET /entries?token=...

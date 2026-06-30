@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const SERVER = "http://127.0.0.1:7070";
 
@@ -18,34 +19,39 @@ function randomToken(): string {
     .join("");
 }
 
-export const useAIStore = create<AIState>((set) => ({
-  token: null,
-  enabled: false,
-  createdAt: null,
-  tokenFilePath: null,
+export const useAIStore = create<AIState>()(
+  persist(
+    (set) => ({
+      token: null,
+      enabled: false,
+      createdAt: null,
+      tokenFilePath: null,
 
-  generateToken: async () => {
-    const token = randomToken();
-    let filePath: string | null = null;
-    try {
-      const res = await fetch(`${SERVER}/token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-      const data = await res.json();
-      if (data.success) filePath = data.data.path;
-    } catch {
-      // Server not running — token still works for window.passNestAI
-    }
-    set({ token, enabled: true, createdAt: new Date().toISOString(), tokenFilePath: filePath });
-    return token;
-  },
+      generateToken: async () => {
+        const token = randomToken();
+        let filePath: string | null = null;
+        try {
+          const res = await fetch(`${SERVER}/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          const data = await res.json();
+          if (data.success) filePath = data.data.path;
+        } catch {
+          // Server not running — token still works for window.passNestAI
+        }
+        set({ token, enabled: true, createdAt: new Date().toISOString(), tokenFilePath: filePath });
+        return token;
+      },
 
-  revokeToken: async () => {
-    try {
-      await fetch(`${SERVER}/revoke`, { method: "POST" });
-    } catch {}
-    set({ token: null, enabled: false, createdAt: null, tokenFilePath: null });
-  },
-}));
+      revokeToken: async () => {
+        try {
+          await fetch(`${SERVER}/revoke`, { method: "POST" });
+        } catch {}
+        set({ token: null, enabled: false, createdAt: null, tokenFilePath: null });
+      },
+    }),
+    { name: "passnest-ai" }
+  )
+);

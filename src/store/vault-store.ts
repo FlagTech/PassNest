@@ -119,7 +119,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     fetch(`${SERVER}/sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entries: [], token: null, unlocked: false }),
+      body: JSON.stringify({ entries: [], token: useAIStore.getState().token, unlocked: false }),
     }).catch(() => {});
   },
 
