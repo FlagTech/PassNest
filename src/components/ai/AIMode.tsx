@@ -50,7 +50,7 @@ export function AIMode({ open, onClose }: AIModeProps) {
           <p className="font-semibold mb-1">AI 代理人存取限制</p>
           <ul className="flex flex-col gap-1 text-slate-light text-xs">
             <li>✅ AI 可以看到：條目名稱、網址、帳號</li>
-            <li>✅ AI 可以操作：複製密碼到剪貼板（3 分鐘後自動清空）</li>
+            <li>✅ AI 可以操作：觸發自動輸入，將密碼貼入目前作業系統焦點所在欄位（明文不經過 AI）</li>
             <li>❌ AI 無法取得：實際密碼或 API 金鑰的明文值</li>
             <li>❌ AI 無法操作：新增、修改、刪除任何條目</li>
           </ul>
@@ -134,7 +134,6 @@ export function AIMode({ open, onClose }: AIModeProps) {
               <p className="text-slate-light/60 not-italic font-sans text-xs mb-1">在 PassNest 分頁的 console 中執行：</p>
               <p>{"window.passNestAI.auth('<TOKEN>')"}</p>
               <p>{"window.passNestAI.listEntries()"}</p>
-              <p>{"window.passNestAI.copyCredential('<ID>', 'password')"}</p>
             </div>
 
             {/* How to use — HTTP API */}
@@ -144,10 +143,10 @@ export function AIMode({ open, onClose }: AIModeProps) {
               <p>{"curl http://localhost:7070/status"}</p>
               <p className="text-purple-dark mt-1">{"# 列出條目"}</p>
               <p>{"curl \"http://localhost:7070/entries?token=<TOKEN>\""}</p>
-              <p className="text-purple-dark mt-1">{"# 複製密碼到剪貼板"}</p>
-              <p>{"curl -X POST http://localhost:7070/copy \\"}</p>
+              <p className="text-purple-dark mt-1">{"# 自動輸入密碼（貼入目前 OS focus 欄位，僅 Windows）"}</p>
+              <p>{"curl -X POST http://localhost:7070/autotype \\"}</p>
               <p>{'  -H "Content-Type: application/json" \\'}</p>
-              <p>{'  -d \'{"token":"<TOKEN>","entryId":"<ID>","field":"password"}\''}</p>
+              <p>{'  -d \'{"token":"<TOKEN>","entryId":"<ID>","field":"password","expectedWindowTitle":"<網域名>"}\''}</p>
             </div>
 
             <div className="flex gap-2">
